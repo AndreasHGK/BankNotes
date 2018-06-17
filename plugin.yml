@@ -5,7 +5,7 @@ api: [3.0.0, 3.0.0-ALPHA12]
 load: POSTWORLD
 author: AndreasHGK
 description: A plugin that makes money into an item to trade with!
-depend: ["EconomyAPI"]
+#depend: ["EconomyAPI"]
 
 commands:
  note:
