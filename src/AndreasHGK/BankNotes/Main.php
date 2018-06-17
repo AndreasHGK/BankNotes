@@ -71,18 +71,24 @@ class Main extends PluginBase{
 			case "deposit":
 			$inv = $sender->getInventory();
 			$hand = $inv->getItemInHand();
-			if($hand == Item::get(339, 0, 1)){
-				$notearray = explode("\n", $hand->getName());
-				if($notearray[1] == "Right-Click to claim this note"){
-				$dep = (int)$notearray[2];
+			$lore = $hand->getlore();
+/* 			$sender->sendMessage(C::YELLOW.C::BOLD."Debug: ".C::RESET.C::GRAY."HAND: ".$hand);
+			$sender->sendMessage(C::YELLOW.C::BOLD."Debug: ".C::RESET.C::GRAY."HANDCNAME: ".$hand->getCustomName());
+			$sender->sendMessage(C::YELLOW.C::BOLD."Debug: ".C::RESET.C::GRAY."HANDLORE0: ".$lore[0]);
+			$sender->sendMessage(C::YELLOW.C::BOLD."Debug: ".C::RESET.C::GRAY."HANDLORE1: ".$lore[1]); */
+			if (!empty($lore)) {
+			if(C::clean($lore[0]) == 'Right-Click to claim this note'){
+				$dep = (int)C::clean($lore[1]);
+				#$sender->sendMessage(C::YELLOW.C::BOLD."Debug: ".C::RESET.C::GRAY."DEPOSIT: ".$dep);
 				EconomyAPI::getInstance()->addMoney($player, $dep);
-				$hand->pop();
+				$hand->setCount($hand->getCount() - 1);
+				$inv->setItemInHand($hand);
 				$sender->sendMessage(C::GREEN.C::BOLD."Success! ".C::RESET.C::GRAY."you deposited $".$dep." to your account.");
 				return true;
-				} else {
-					$sender->sendMessage(C::RED.C::BOLD."Error! ".C::RESET.C::GRAY."you must be holding a bank note.");
-					return true;
-				}
+			} else {
+				$sender->sendMessage(C::RED.C::BOLD."Error! ".C::RESET.C::GRAY."you must be holding a bank note.");
+				return true;
+			}
 			} else {
 				$sender->sendMessage(C::RED.C::BOLD."Error! ".C::RESET.C::GRAY."you must be holding a bank note.");
 				return true;
@@ -93,7 +99,17 @@ class Main extends PluginBase{
 			return false;
 	}
 	}
-
+	
+/* 	public function onInteract(PlayerInteractEvent $event){
+		$player = $event->getPlayer();
+		$item = $player->getInventory()->getItemInHand();
+		if(($item->getId() == 339){//339 is paper
+			#add money to player
+			$item->setCount($item->getCount() - 1);
+			$player->getInventory()->setItemInHand($item);
+		}
+	} */
+	
 	public function onDisable(){
 		$this->getLogger()->info("disabled!");
 	}
