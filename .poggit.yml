@@ -1,0 +1,7 @@
+--- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/AndreasHGK/BankNotes
+branches:
+- master
+projects:
+  BankNotes:
+    path: ""
+...
