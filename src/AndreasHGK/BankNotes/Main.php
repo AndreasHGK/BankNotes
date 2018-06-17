@@ -75,6 +75,8 @@ class Main extends PluginBase{
 				$notearray = explode("\n", $hand->getName());
 				if($notearray[1] == "Right-Click to claim this note"){
 				$dep = (int)$notearray[2];
+				EconomyAPI::getInstance()->addMoney($player, $dep);
+				$hand->pop();
 				$sender->sendMessage(C::GREEN.C::BOLD."Success! ".C::RESET.C::GRAY."you deposited $".$dep." to your account.");
 				return true;
 				} else {
