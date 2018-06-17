@@ -9,15 +9,18 @@ use pocketmine\utils\Config;
 use pocketmine\item\Item;
 use pocketmine\nbt\NBT;
 use pocketmine\inventory\Inventory;
+use pocketmine\event\player\PlayerInteractEvent;
+use pocketmine\event\Listener;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\Player;
 use onebone\economyapi\EconomyAPI;
 use pocketmine\utils\TextFormat as C;
 
-class Main extends PluginBase{
+class Main extends PluginBase implements Listener{
 
 	public function onEnable(){
 		$this->getLogger()->info("enabled!");
+		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 	}
 
 	public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
@@ -46,6 +49,7 @@ class Main extends PluginBase{
 				if(is_int($amount)){
 					$bal = EconomyAPI::getInstance()->myMoney($player);
 				if($bal >= $amount) {
+					if($amount > 0){
 					#make and give the custom bank note and reduce playermoney
 					EconomyAPI::getInstance()->reduceMoney($player, $amount);
 					$note = Item::get(339, 0, 1);
@@ -57,6 +61,10 @@ class Main extends PluginBase{
 					$sender->getInventory()->addItem($note);
 					$sender->sendMessage(C::GREEN.C::BOLD."Success! ".C::RESET.C::GRAY."a $".$amount." note was given.");
 					return true;
+					} else {
+						$sender->sendMessage(C::RED.C::BOLD."Error! ".C::RESET.C::GRAY."please provide a number greater than 0.");
+						return true;
+					}
 				} else {
 					$sender->sendMessage(C::RED.C::BOLD."Error! ".C::RESET.C::GRAY."player has insufficient money.");
 					return true;
@@ -72,14 +80,9 @@ class Main extends PluginBase{
 			$inv = $sender->getInventory();
 			$hand = $inv->getItemInHand();
 			$lore = $hand->getlore();
-/* 			$sender->sendMessage(C::YELLOW.C::BOLD."Debug: ".C::RESET.C::GRAY."HAND: ".$hand);
-			$sender->sendMessage(C::YELLOW.C::BOLD."Debug: ".C::RESET.C::GRAY."HANDCNAME: ".$hand->getCustomName());
-			$sender->sendMessage(C::YELLOW.C::BOLD."Debug: ".C::RESET.C::GRAY."HANDLORE0: ".$lore[0]);
-			$sender->sendMessage(C::YELLOW.C::BOLD."Debug: ".C::RESET.C::GRAY."HANDLORE1: ".$lore[1]); */
 			if (!empty($lore)) {
 			if(C::clean($lore[0]) == 'Right-Click to claim this note'){
 				$dep = (int)C::clean($lore[1]);
-				#$sender->sendMessage(C::YELLOW.C::BOLD."Debug: ".C::RESET.C::GRAY."DEPOSIT: ".$dep);
 				EconomyAPI::getInstance()->addMoney($player, $dep);
 				$hand->setCount($hand->getCount() - 1);
 				$inv->setItemInHand($hand);
@@ -100,15 +103,23 @@ class Main extends PluginBase{
 	}
 	}
 	
-/* 	public function onInteract(PlayerInteractEvent $event){
-		$player = $event->getPlayer();
-		$item = $player->getInventory()->getItemInHand();
-		if(($item->getId() == 339){//339 is paper
-			#add money to player
-			$item->setCount($item->getCount() - 1);
-			$player->getInventory()->setItemInHand($item);
-		}
-	} */
+	#Thanks to JackMD for providing help with this part!
+ 	public function onInteract(PlayerInteractEvent $event){
+		$p = $event->getPlayer();
+		$name = $p->getName();
+		$inv = $p->getInventory();
+		$hand = $inv->getItemInHand();
+		$lore = $hand->getlore();
+		if (!empty($lore)) {
+			if(C::clean($lore[0]) == 'Right-Click to claim this note'){
+				$dep = (int)C::clean($lore[1]);
+				EconomyAPI::getInstance()->addMoney($name, $dep);
+				$hand->setCount($hand->getCount() - 1);
+				$inv->setItemInHand($hand);
+				$p->sendMessage(C::GREEN.C::BOLD."Success! ".C::RESET.C::GRAY."you deposited $".$dep." to your account.");
+			}
+	}
+	}
 	
 	public function onDisable(){
 		$this->getLogger()->info("disabled!");
