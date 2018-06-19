@@ -1,6 +1,8 @@
 # BankNotes
 [![](https://poggit.pmmp.io/shield.state/BankNotes)](https://poggit.pmmp.io/p/BankNotes)
 [![](https://poggit.pmmp.io/shield.api/BankNotes)](https://poggit.pmmp.io/p/BankNotes)
+
+
 Turn your EconomyAPI money into items to trade them!
 **Right-Click** to deposit a note
 type **/note {amount}** to get
