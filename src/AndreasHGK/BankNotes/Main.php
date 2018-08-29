@@ -18,7 +18,7 @@ use pocketmine\utils\TextFormat as C;
 
 class Main extends PluginBase implements Listener{
 
-	public function onEnable(){
+	public function onEnable() : void{
 		$this->getLogger()->info("enabled!");
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 	}
@@ -104,7 +104,7 @@ class Main extends PluginBase implements Listener{
 	}
 	
 	#Thanks to JackMD for providing help with this part!
- 	public function onInteract(PlayerInteractEvent $event){
+ 	public function onInteract(PlayerInteractEvent $event) : void{
 		$p = $event->getPlayer();
 		$name = $p->getName();
 		$inv = $p->getInventory();
@@ -112,16 +112,22 @@ class Main extends PluginBase implements Listener{
 		$lore = $hand->getlore();
 		if (!empty($lore)) {
 			if(C::clean($lore[0]) == 'Right-Click to claim this note'){
+				if($event->getBlock()->getId() == 389){
+					$p->sendMessage(C::RED.C::BOLD."Error: ".C::RESET.C::GRAY."you are not allowed to place this item in an item frame.");
+					$event->setCancelled();
+					return;
+				}
 				$dep = (int)C::clean($lore[1]);
 				EconomyAPI::getInstance()->addMoney($name, $dep);
 				$hand->setCount($hand->getCount() - 1);
 				$inv->setItemInHand($hand);
 				$p->sendMessage(C::GREEN.C::BOLD."Success! ".C::RESET.C::GRAY."you deposited $".$dep." to your account.");
+				return;
 			}
 	}
 	}
 	
-	public function onDisable(){
+	public function onDisable() : void{
 		$this->getLogger()->info("disabled!");
 	}
 }
