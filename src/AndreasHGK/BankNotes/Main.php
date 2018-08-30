@@ -7,6 +7,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\Command;
 use pocketmine\utils\Config;
 use pocketmine\item\Item;
+use pocketmine\block\Block;
 use pocketmine\nbt\NBT;
 use pocketmine\inventory\Inventory;
 use pocketmine\event\player\PlayerInteractEvent;
@@ -112,16 +113,38 @@ class Main extends PluginBase implements Listener{
 		$lore = $hand->getlore();
 		if (!empty($lore)) {
 			if(C::clean($lore[0]) == 'Right-Click to claim this note'){
-				if($event->getBlock()->getId() == 389){
-					$p->sendMessage(C::RED.C::BOLD."Error: ".C::RESET.C::GRAY."you are not allowed to place this item in an item frame.");
-					$event->setCancelled();
-					return;
-				}
+				switch($event->getBlock()->getName()){
+					
+				case "Item Frame":
+				case "Anvil":
+				case "Crafting Table":
+				case "Furnace":
+				case "Chest":
+				case "Brewing Stand":
+				case "Cake":
+				case "Door":
+				case "Wooden Door":
+				case "Wooden Button":
+				case "Stone Button":
+				case "Enchanting Table":
+				case "Ender Chest":
+				case "Fence Gate":
+				case "Iron Door":
+				case "Stonecutter":
+				case "Trapped Chest":
+				case "Wooden Trapdoor":
+				case "Bed":
+					#$p->sendMessage(C::RED.C::BOLD."Error: ".C::RESET.C::GRAY."you are not allowed to place this item in an item frame.");
+					#$event->setCancelled();
+					break;
+				default:
 				$dep = (int)C::clean($lore[1]);
 				EconomyAPI::getInstance()->addMoney($name, $dep);
 				$hand->setCount($hand->getCount() - 1);
 				$inv->setItemInHand($hand);
 				$p->sendMessage(C::GREEN.C::BOLD."Success! ".C::RESET.C::GRAY."you deposited $".$dep." to your account.");
+				break;
+				}
 				return;
 			}
 	}
