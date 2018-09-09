@@ -1,0 +1,15 @@
+# BankNotes config
+
+#IMPORTANT: If you change any of these values the older banknotes should still work!
+
+#the numeric ID of a bank note.
+note-id: 339
+
+#you can use these values in the name and lore
+# {AMOUNT} - value of the note
+# {CREATOR} - the person who created the note
+
+note-name: "&e$&6{AMOUNT} &enote"
+
+#seperate lines with commas and keep everything in the square brackets []. Each line needs to be in quatation marks "" as well.
+note-lore: ["&4Right-click &cto claim this note", "&cCreated by: &4{CREATOR}"]
