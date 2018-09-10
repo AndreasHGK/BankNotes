@@ -24,6 +24,7 @@ class Main extends PluginBase implements Listener{
 	
 	public $NoteVersion = 2.0;
 	private $cfg;
+	public $CompalibleVersions = [2.0];
 
 	public function onEnable() : void{
 		@mkdir($this->getDataFolder());
@@ -36,49 +37,57 @@ class Main extends PluginBase implements Listener{
         $this->config->save();
     }
 	
-	public function replaceVars($str, array $vars){
+	public function replaceVars($str, array $vars) : string{
         foreach($vars as $key => $value){
             $str = str_replace("{" . $key . "}", $value, $str);
         }
         return $str;
     }
-	
-/*  	public function getNameConfig(){
-		return C::colorize($this->replaceVars($this->cfg["note-name"], array(
-			"VALUE" => $amount,
-			"CREATOR" => $player)));
-	} */
-	
-/* 	public function getLoreConfig() : array{
-		$int = 0;
-		
-		foreach($this->cfg["note-lore"] as $line){
-			$array[$int] = C::colorize($this->replaceVars($line, array("VALUE" => $amount, "CREATOR" => $player)));
-			$int++;
-		}
-		return $array;
-	} */
 
 	public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
 		$player = $sender->getName();
 		#check if command is ran from console
 		if(!($sender instanceof Player)){
-			$sender->sendMessage(C::RED."Please run this command in-game");
+			$sender->sendMessage(C::colorize($this->cfg["error-execute-ingame"]));
 			return true;
 		}
 		switch(strtolower($command->getName())){
 			
-			case "banknotes":
-			
+			#future command
+/* 			case "banknotes":
+				
+				switch(strtolower($args[0])){
+					case "admin":
+					switch(strtolower($args[1])){
+						case "reload":
+						return true;
+						
+						default:
+							$sender->sendMessage(C::RED.C::BOLD."Invalid command");
+						return true;
+						break;
+					}
+					return true;
+					
+					case "check":
+					return true;
+					
+					default:
+						$sender->sendMessage(C::RED.C::BOLD."Invalid command");
+					return true;
+					break;
+				}
+				
 			return true;
-			break;
+			break; */
 			
 			case "note":
 			case "withdraw":
 				
 				#check if player used arguments
 				if(empty($args[0])){
-					$sender->sendMessage(C::RED.C::BOLD."Usage: ".C::RESET.C::GRAY."/note {amount}");
+					$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["error-empty-argument"], array(
+						"USER" => $player))));
 				return true;
 			} else{
 				
@@ -95,7 +104,7 @@ class Main extends PluginBase implements Listener{
 					$note = Item::get($this->cfg["note-id"], 0, 1);
 					$note->setCustomName(C::colorize($this->replaceVars($this->cfg["note-name"], array(
 						"VALUE" => $amount,
-						"CREATOR" => $player))));
+						"USER" => $player))));
 					
 					$loreint = 0;
 					$lorearray	;
@@ -112,18 +121,28 @@ class Main extends PluginBase implements Listener{
 					$nbt->setTag(new StringTag("Creator", $player));
 					$note->setCompoundTag($nbt);
 					$sender->getInventory()->addItem($note);
-					$sender->sendMessage(C::GREEN.C::BOLD."Success! ".C::RESET.C::GRAY."a $".$amount." note was given.");
+					$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["withdraw-sucess"], array(
+						"VALUE" => $amount,
+						"USER" => $player))));
 					return true;
 					} else {
-						$sender->sendMessage(C::RED.C::BOLD."Error! ".C::RESET.C::GRAY."please provide a number greater than 0.");
+						$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["error-value-invalid"], array(
+						"VALUE" => $amount,
+						"USER" => $player))));
 						return true;
 					}
 				} else {
-					$sender->sendMessage(C::RED.C::BOLD."Error! ".C::RESET.C::GRAY."player has insufficient money.");
+					$playermoney = EconomyAPI::getInstance()->myMoney($player);
+					$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["error-insufficient-money"], array(
+						"VALUE" => $amount,
+						"USER" => $player,
+						"BAL" => $playermoney))));
 					return true;
 				}
 				} else{
-					$sender->sendMessage(C::RED.C::BOLD."Error! ".C::RESET.C::GRAY."please enter an integer.");
+					$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["error-invalid-argument"], array(
+						"VALUE" => $amount,
+						"USER" => $player))));
 					return true;
 				}
 			}
@@ -140,14 +159,18 @@ class Main extends PluginBase implements Listener{
 				EconomyAPI::getInstance()->addMoney($player, $dep);
 				$hand->setCount($hand->getCount() - 1);
 				$inv->setItemInHand($hand);
-				$sender->sendMessage(C::GREEN.C::BOLD."Success! ".C::RESET.C::GRAY."you deposited $".$dep." to your account.");
+				$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["deposit-succes"], array(
+						"VALUE" => $dep,
+						"USER" => $player))));
 				return true;
 			} else {
-				$sender->sendMessage(C::RED.C::BOLD."Error: ".C::RESET.C::GRAY."this is an outdated note.");
+				$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["error-note-incompatible"], array(
+						"USER" => $player))));
 				return true;
 			}
 			}else{
-			$sender->sendMessage(C::RED.C::BOLD."Error: ".C::RESET.C::GRAY."this is not a valid note.");
+			$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["error-note-invalid"], array(
+						"USER" => $player))));
 			return true;
 			}
 			break;
@@ -195,12 +218,15 @@ class Main extends PluginBase implements Listener{
 				EconomyAPI::getInstance()->addMoney($name, $dep);
 				$hand->setCount($hand->getCount() - 1);
 				$inv->setItemInHand($hand);
-				$p->sendMessage(C::GREEN.C::BOLD."Success! ".C::RESET.C::GRAY."you deposited $".$dep." to your account.");
+				$p->sendMessage(C::colorize($this->replaceVars($this->cfg["deposit-succes"], array(
+						"VALUE" => $dep,
+						"USER" => $p))));
 				break;
 				}
 				return;
 			}else{
-				$p->sendMessage(C::RED.C::BOLD."Error: ".C::RESET.C::GRAY."this is an outdated note.");
+				$p->sendMessage(C::colorize($this->replaceVars($this->cfg["error-note-incompatible"], array(
+						"USER" => $p))));
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 name: BankNotes
 main: AndreasHGK\BankNotes\Main
-version: 1.1.0
+version: 1.2.0
 api: [3.0.0]
 load: POSTWORLD
 author: AndreasHGK
@@ -13,10 +13,11 @@ commands:
   usage: "/note {amount}"
   permission: banknotes.get
   aliases: ["withdraw"]
- banknotes:
-  description: "plugin commands"
-  usage: "/banknotes <subcommand>"
-  permission: banknotes.command
+  #future command
+ # banknotes:
+  # description: "plugin commands"
+  # usage: "/banknotes <subcommand>"
+  # permission: banknotes.command
  deposit:
   description: "Deposit a note to your account"
   usage: "/deposit"
@@ -33,6 +34,6 @@ permissions:
    banknotes.deposit:
     default: true
     description: "allow players to deposit banknotes"
-   banknotes.command:
-    default: true
-    description: "plugin commands"
+   # banknotes.command:
+    # default: true
+    # description: "plugin commands"

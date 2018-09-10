@@ -6,7 +6,7 @@
 note-id: 339
 
 #you can use these values in the name and lore
-# {AMOUNT} - value of the note
+# {VALUE} - value of the note
 # {CREATOR} - the person who created the note
 # Add &r before a line so the line doesn't appear in italics
 
@@ -14,3 +14,46 @@ note-name: "&r&e$&6{VALUE} &enote"
 
 #seperate lines with commas and keep everything in the square brackets []. Each line needs to be in quatation marks "" as well.
 note-lore: ["&r&4Right-click &cto claim this note", "&r&cCreated by: &4{CREATOR}"]
+
+#---#---#---#---#---#---#---#---#---#---#---#---#---#---#---#
+
+#Messages
+#usable vars will be displayed
+# {VALUE} - value of the note or 1st argument in /note 1
+# {USER} - person who executes the command
+# {BAL} - current balance on EconomyAPI 'bank'
+
+## Displayed when command isn't executed by an in-game player (eg. console)
+error-execute-ingame: "&cPlease run this command in-game"
+
+## Displayed no arguments are given for /note
+#VARS: {USER}
+error-empty-argument: "&e&lUsage: &r&7/note {amount}"
+
+## Displayed when a banknote has been sucessfully created (eg. /note 10)
+#VARS: {VALUE} {USER}
+withdraw-sucess: "&a&lSuccess! &r&7a ${VALUE} note was created."
+
+## Displayed when a player tries to create a note with a value lower than or equals to 0 (eg. /note 0)
+#VARS: {VALUE} {USER}
+error-value-invalid: "&c&lError! &r&7please provide a number greater than 0."
+
+## Displayed when a player has insufficient money (eg. /note 12345 but user has $1000)
+#VARS: {VALUE} {USER} {BAL}
+error-insufficient-money: "&c&lError! &r&7player has insufficient money."
+
+## Displayed when invalid arguments are given for the /note command (eg. /note abc)
+#VARS: {VALUE} {USER}
+error-invalid-argument: "&c&lError! &r&7invalid argument given."
+
+## Displayed when a player successfully deposits a banknote
+#VARS: {VALUE} {USER}
+deposit-succes: "&a&lSuccess! &r&7you deposited ${VALUE} to your account."
+
+## Displayed when a player tries to deposit a banknote from an incompatible version (after the plugin updated this MIGHT happen)
+#VARS: {USER}
+error-note-incompatible: "&c&lError: &r&7this is an outdated note."
+
+## Displayed when a player tries to use /deposit on something else (doesn't apply for right-clicking)
+#VARS: {USER}
+error-note-invalid: "&c&lError: &r&7this is not a valid note."
