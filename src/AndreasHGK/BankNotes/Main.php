@@ -96,30 +96,16 @@ class Main extends PluginBase implements Listener{
 					$amount = (int)$args[0];
 				}
 				if(is_int($amount)){
-					$bal = EconomyAPI::getInstance()->myMoney($player);
+					
+				$bal = EconomyAPI::getInstance()->myMoney($player);	
 				if($bal >= $amount) {
 					if($amount > 0){
+						
 					#make and give the custom bank note and reduce playermoney
 					EconomyAPI::getInstance()->reduceMoney($player, $amount);
-					$note = Item::get($this->cfg["note-id"], 0, 1);
-					$note->setCustomName(C::colorize($this->replaceVars($this->cfg["note-name"], array(
-						"VALUE" => $amount,
-						"USER" => $player))));
 					
-					$loreint = 0;
-					$lorearray	;
-					foreach($this->cfg["note-lore"] as $line){
-						$lorearray[$loreint] = C::colorize($this->replaceVars($line, array("VALUE" => $amount, "CREATOR" => $player)));
-						$loreint++;
-					}
+					$note = $this->noteItem($amount, $player);
 					
-					$note->setLore($lorearray);
-					$nbt = $note->getNamedTag();
-					$nbt->setTag(new ByteTag("IsValidNote", true));
-					$nbt->setTag(new IntTag("NoteVersion", $this->NoteVersion));
-					$nbt->setTag(new IntTag("NoteValue", $amount));
-					$nbt->setTag(new StringTag("Creator", $player));
-					$note->setCompoundTag($nbt);
 					$sender->getInventory()->addItem($note);
 					$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["withdraw-sucess"], array(
 						"VALUE" => $amount,
@@ -149,34 +135,33 @@ class Main extends PluginBase implements Listener{
 			break;
 			
 			case "deposit":
-			$inv = $sender->getInventory();
-			$hand = $inv->getItemInHand();
-			$lore = $hand->getlore();
-			$nbt = $hand->getNamedTag();
-			if ($nbt->getByte("IsValidNote", false) == true) {
-			if($nbt->getInt("NoteVersion", 1.0) == $this->NoteVersion){
-				$dep = $nbt->getInt("NoteValue");
-				EconomyAPI::getInstance()->addMoney($player, $dep);
-				$hand->setCount($hand->getCount() - 1);
-				$inv->setItemInHand($hand);
-				$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["deposit-succes"], array(
-						"VALUE" => $dep,
-						"USER" => $player))));
-				return true;
-			} else {
+			$return = $this->depositCheck($sender);
+			switch($return){
+				case -1:
 				$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["error-note-incompatible"], array(
-						"USER" => $player))));
+					"USER" => $player))));
 				return true;
-			}
-			}else{
-			$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["error-note-invalid"], array(
-						"USER" => $player))));
-			return true;
-			}
-			break;
+				break;
 			
-			default:
-			return false;
+				case -2:
+				$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["error-note-invalid"], array(
+					"USER" => $player))));
+				return true;
+				break;
+				
+				case -3;
+				return true;
+				break;
+
+				default:
+				$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["deposit-succes"], array(
+					"VALUE" => $return,
+					"USER" => $player))));
+				return true;
+				break;
+				
+			}return true;
+		
 		} return false;
 	}
 	
@@ -184,50 +169,117 @@ class Main extends PluginBase implements Listener{
  	public function onInteract(PlayerInteractEvent $event) : void{
 		$p = $event->getPlayer();
 		$name = $p->getName();
+		$return = $this->depositCheck($event->getPlayer(), true, $event);
+		switch($return){
+			case -1:
+			$p->sendMessage(C::colorize($this->replaceVars($this->cfg["error-note-incompatible"], array(
+				"USER" => $name))));
+			
+			case -2:
+			break;
+			
+			case -3:
+			break;
+			
+			default:
+			$p->sendMessage(C::colorize($this->replaceVars($this->cfg["deposit-succes"], array(
+				"VALUE" => $return,
+				"USER" => $name))));
+			break;
+		}
+	}
+	
+	/* error codes
+	-1 : oudated note
+	-2 : invalid note
+	-3 : illegal interaction
+	anything else : value of note */
+	public function depositCheck(player $p, bool $interact = false, PlayerInteractEvent $event = NULL) : int{
+		
+		$name = $p->getName();
 		$inv = $p->getInventory();
 		$hand = $inv->getItemInHand();
 		$nbt = $hand->getNamedTag();
 		if ($nbt->getByte("IsValidNote", false) == true) {
-			if($nbt->getInt("NoteVersion", 1.0) == $this->NoteVersion){
-				#check to see on which block the player claims the note
-				switch($event->getBlock()->getName()){
+			if($nbt->getInt("NoteVersion", 0) == $this->NoteVersion){
+				
+				#check to see on which block the player claims the note if it's a playerinteractevent
+				if($interact){
+					switch($event->getBlock()->getName()){
 					
-				case "Item Frame":
-				case "Anvil":
-				case "Crafting Table":
-				case "Furnace":
-				case "Chest":
-				case "Brewing Stand":
-				case "Cake":
-				case "Door":
-				case "Wooden Door":
-				case "Wooden Button":
-				case "Stone Button":
-				case "Enchanting Table":
-				case "Ender Chest":
-				case "Fence Gate":
-				case "Iron Door":
-				case "Stonecutter":
-				case "Trapped Chest":
-				case "Wooden Trapdoor":
-				case "Bed":
-					break;
-					
-				default:
-				$dep = $nbt->getInt("NoteValue");
-				EconomyAPI::getInstance()->addMoney($name, $dep);
-				$hand->setCount($hand->getCount() - 1);
-				$inv->setItemInHand($hand);
-				$p->sendMessage(C::colorize($this->replaceVars($this->cfg["deposit-succes"], array(
-						"VALUE" => $dep,
-						"USER" => $p))));
-				break;
+						case "Item Frame":
+						case "Anvil":
+						case "Crafting Table":
+						case "Furnace":
+						case "Chest":
+						case "Brewing Stand":
+						case "Cake":
+						case "Door":
+						case "Wooden Door":
+						case "Wooden Button":
+						case "Stone Button":
+						case "Enchanting Table":
+						case "Ender Chest":
+						case "Fence Gate":
+						case "Iron Door":
+						case "Stonecutter":
+						case "Trapped Chest":
+						case "Wooden Trapdoor":
+						case "Bed":
+							return -3;
+							break;
+						
+						default:
+							return $this->deposit($p);
+							break;
+					}
+				}else{
+					return $this->deposit($p);
 				}
-				return;
 			}else{
-				$p->sendMessage(C::colorize($this->replaceVars($this->cfg["error-note-incompatible"], array(
-						"USER" => $p))));
+				return -1;
 			}
+		}else{
+			return -2;
 		}
+	}
+	
+	public function deposit(player $p) : int{
+		
+		$name = $p->getName();
+		$inv = $p->getInventory();
+		$hand = $inv->getItemInHand();
+		$nbt = $hand->getNamedTag();
+		
+		$dep = $nbt->getInt("NoteValue");
+		EconomyAPI::getInstance()->addMoney($name, $dep);
+		$hand->setCount($hand->getCount() - 1);
+		$inv->setItemInHand($hand);
+		return $dep;
+	}
+	
+	#returns the note as item
+	public function noteItem(int $amount, string $player = "ADMIN") : item{
+		$note = Item::get($this->cfg["note-id"], 0, 1);
+		$note->setCustomName(C::colorize($this->replaceVars($this->cfg["note-name"], array(
+			"VALUE" => $amount,
+			"USER" => $player))));
+					
+		$loreint = 0;
+		$lorearray	;
+		foreach($this->cfg["note-lore"] as $line){
+			$lorearray[$loreint] = C::colorize($this->replaceVars($line, array("VALUE" => $amount, "CREATOR" => $player)));
+			$loreint++;
+		}
+					
+		$note->setLore($lorearray);
+		$nbt = $note->getNamedTag();
+		$nbt->setTag(new ByteTag("IsValidNote", true));
+		$nbt->setTag(new IntTag("NoteVersion", $this->NoteVersion));
+		$nbt->setTag(new IntTag("NoteValue", $amount));
+		$nbt->setTag(new StringTag("Creator", $player));
+		$note->setCompoundTag($nbt);
+		
+		return $note;
 	}
 }

@@ -13,7 +13,7 @@ note-id: 339
 note-name: "&r&e$&6{VALUE} &enote"
 
 #seperate lines with commas and keep everything in the square brackets []. Each line needs to be in quatation marks "" as well.
-note-lore: ["&r&4Right-click &cto claim this note", "&r&cCreated by: &4{CREATOR}"]
+note-lore: ["&r&4Right-click &cto deposit this note", "&r&cCreated by: &4{CREATOR}"]
 
 #---#---#---#---#---#---#---#---#---#---#---#---#---#---#---#
 
