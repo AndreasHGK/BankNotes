@@ -5,7 +5,7 @@ api: [3.0.0]
 load: POSTWORLD
 author: AndreasHGK
 description: A plugin that makes money into an item to trade with!
-softdepend: ["EconomyAPI"]
+depend: ["EconomyAPI"]
 
 commands:
  note:
@@ -13,11 +13,10 @@ commands:
   usage: "/note {amount}"
   permission: banknotes.get
   aliases: ["withdraw"]
-  #future command
- # banknotes:
-  # description: "plugin commands"
-  # usage: "/banknotes <subcommand>"
-  # permission: banknotes.command
+ banknotes:
+  description: "plugin commands"
+  usage: "/banknotes <subcommand>"
+  permission: banknotes.command
  deposit:
   description: "Deposit a note to your account"
   usage: "/deposit"
@@ -25,7 +24,7 @@ commands:
 
 permissions:
  banknotes:
-  default: true
+  default: false
   description: "bankNotes root permission (useless)"
   children:
    banknotes.get:
@@ -34,6 +33,9 @@ permissions:
    banknotes.deposit:
     default: true
     description: "allow players to deposit banknotes"
-   # banknotes.command:
-    # default: true
-    # description: "plugin commands"
+   banknotes.command:
+    default: true
+    description: "plugin commands like /banknotes check"
+    banknotes.command.admin:
+     default: false
+     description: "admin commands like /banknotes admin reload,validate,devalidate"

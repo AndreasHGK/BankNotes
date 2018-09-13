@@ -1,4 +1,5 @@
 # BankNotes config
+#---#---#---#---#---#---#---#---#---#---#---#---#---#---#---#
 
 #IMPORTANT: If you change any of these values the older banknotes should still work!
 
@@ -10,8 +11,8 @@ note-id: 339
 # {CREATOR} - the person who created the note
 # Add &r before a line so the line doesn't appear in italics
 
-note-name: "&r&e$&6{VALUE} &enote"
 
+note-name: "&r&e$&6{VALUE} &enote"
 #seperate lines with commas and keep everything in the square brackets []. Each line needs to be in quatation marks "" as well.
 note-lore: ["&r&4Right-click &cto deposit this note", "&r&cCreated by: &4{CREATOR}"]
 
@@ -22,6 +23,9 @@ note-lore: ["&r&4Right-click &cto deposit this note", "&r&cCreated by: &4{CREATO
 # {VALUE} - value of the note or 1st argument in /note 1
 # {USER} - person who executes the command
 # {BAL} - current balance on EconomyAPI 'bank'
+# {FULLNAME} - plugin name + version (eg. 'Banknotes v1.2.0')
+
+# use \n for a new line (no spaces needed)
 
 ## Displayed when command isn't executed by an in-game player (eg. console)
 error-execute-ingame: "&cPlease run this command in-game"
@@ -30,21 +34,21 @@ error-execute-ingame: "&cPlease run this command in-game"
 #VARS: {USER}
 error-empty-argument: "&e&lUsage: &r&7/note {amount}"
 
-## Displayed when a banknote has been sucessfully created (eg. /note 10)
+## Displayed when a banknote has been successfully created (eg. /note 10)
 #VARS: {VALUE} {USER}
-withdraw-sucess: "&a&lSuccess! &r&7a ${VALUE} note was created."
+withdraw-sucess: "&a&lSuccess: &r&7a ${VALUE} note was created."
 
 ## Displayed when a player tries to create a note with a value lower than or equals to 0 (eg. /note 0)
 #VARS: {VALUE} {USER}
-error-value-invalid: "&c&lError! &r&7please provide a number greater than 0."
+error-value-invalid: "&c&lError: &r&7please provide a number greater than 0."
 
 ## Displayed when a player has insufficient money (eg. /note 12345 but user has $1000)
 #VARS: {VALUE} {USER} {BAL}
-error-insufficient-money: "&c&lError! &r&7player has insufficient money."
+error-insufficient-money: "&c&lError: &r&7player has insufficient money."
 
 ## Displayed when invalid arguments are given for the /note command (eg. /note abc)
 #VARS: {VALUE} {USER}
-error-invalid-argument: "&c&lError! &r&7invalid argument given."
+error-invalid-argument: "&c&lError: &r&7invalid argument given."
 
 ## Displayed when a player successfully deposits a banknote
 #VARS: {VALUE} {USER}
@@ -57,3 +61,56 @@ error-note-incompatible: "&c&lError: &r&7this is an outdated note."
 ## Displayed when a player tries to use /deposit on something else (doesn't apply for right-clicking)
 #VARS: {USER}
 error-note-invalid: "&c&lError: &r&7this is not a valid note."
+
+## Displayed when this config has reloaded after a player does /banknotes admin reload
+#VARS: {USER}
+reload-success: "&a&lSucces! &r&7config file reloaded."
+
+## Displayed when a banknote has been successfully validated
+#VARS: {USER}
+validate-succes: "&a&lSuccess! &r&17this note has been validated."
+
+## Displayed when a banknote has been successfully devalidated
+#VARS: {USER}
+devalidate-succes: "&a&lSuccess! &r&17this note has been devalidated."
+
+## Displayed when a player tries to validate something else than a (devalidated) note
+#VARS: {USER}
+validate-error: "&c&lError: &r&7you can't validate this."
+
+## Displayed when a player tries to devalidate something else than a note
+#VARS: {USER}
+devalidate-error: "&c&lError: &r&7you can't devalidate this."
+
+## Displayed when the note is valid when executing /banknotes check
+#VARS: {USER}
+note-check-valid: "&9&lResult: &r&7this is a valid note."
+
+## Displayed when the note is valid when executing /banknotes check
+#VARS: {USER}
+note-check-invalid: "&9&lResult: &r&7this is NOT a valid note."
+
+## Displayed when the executor doesn't have the correct permissions to execute a command
+#VARS: {USER}
+error-nopermission: "&c&lError: &r&7you don't have the permission to run this."
+
+## Displayed when a player types /banknotes with an unknown argument
+#VARS: {USER} {FULLNAME}
+unknown-command: "&6&l{FULLNAME} &r&e--- Commands\n&c/banknotes check &r&7- Check if the note you're holding is valid\n&c/banknotes admin &r&7- Display all admin commands"
+
+## Displayed when a player types /banknotes with an unknown argument
+#VARS: {USER} {FULLNAME}
+unknown-command-admin: "&6&l{FULLNAME} &r&e--- Admin commands\n&c/banknotes admin reload &r&7- Reload the config of this plugin\n&c/banknotes admin validate &r&7- Make a devalidated note valid\n&c/banknotes admin devalidate &r&7- Make a note invalid"
+
+#---#---#---#---#---#---#---#---#---#---#---#---#---#---#---#
+
+#Advanced settings
+##These are some advanced settings. Only change them if you know what you're doing
+
+# If you want to reset the economy, change the economyid to anything you like (won't be seen by players). Notes that have a different economyid won't work.
+# This way you don't have to delete everyones banknotes if you want to reset everyones money.
+economyid: "economyid"
+
+# By enabling this, notes that don't have an economyid (notes from v1.1.0) will still work.
+# If you change the econid it might be a good idea to disable this too.
+econid-compatibility: true

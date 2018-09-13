@@ -22,9 +22,9 @@ use pocketmine\utils\TextFormat as C;
 
 class Main extends PluginBase implements Listener{
 	
-	public $NoteVersion = 2.0;
+	public $NoteVersion = 2.1;
 	private $cfg;
-	public $CompalibleVersions = [2.0];
+	public $CompalibleVersions = [2.0, 2.1];
 
 	public function onEnable() : void{
 		@mkdir($this->getDataFolder());
@@ -54,32 +54,99 @@ class Main extends PluginBase implements Listener{
 		switch(strtolower($command->getName())){
 			
 			#future command
-/* 			case "banknotes":
-				
+ 			case "banknotes":
+				if($sender->hasPermission("banknotes.command")){
+				if(empty($args[0])){
+					$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["unknown-command"], array(
+						"USER" => $player,
+						"FULLNAME" => $this->getDescription()->getFullName()))));
+					return true;
+					break;
+				}
 				switch(strtolower($args[0])){
 					case "admin":
+					if($sender->hasPermission("banknotes.command.admin")){
+					if(empty($args[1])){
+					$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["unknown-command-admin"], array(
+						"USER" => $player,
+						"FULLNAME" => $this->getDescription()->getFullName()))));
+					return true;
+					break;
+					}
 					switch(strtolower($args[1])){
+						
 						case "reload":
+							$this->reloadConfig();
+							$this->cfg = $this->getConfig()->getAll();
+							$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["reload-success"], array(
+								"USER" => $player))));
 						return true;
 						
+						case "devalidate":
+							$devalidate = $this->devalidate($sender->getInventory()->getItemInHand(), $sender);
+							if($devalidate){
+								$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["devalidate-success"], array(
+									"USER" => $player))));
+							}else{
+								$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["devalidate-error"], array(
+									"USER" => $player))));
+							}
+						return true;
+						break;
+						
+						case "validate":
+							$validate = $this->validate($sender->getInventory()->getItemInHand(), $sender);
+							if($validate){
+								$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["validate-success"], array(
+									"USER" => $player))));
+							}else{
+								$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["validate-error"], array(
+									"USER" => $player))));
+							}
+						return true;
+						break;
+						
 						default:
-							$sender->sendMessage(C::RED.C::BOLD."Invalid command");
+							$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["unknown-command-admin"], array(
+								"USER" => $player,
+								"FULLNAME" => $this->getDescription()->getFullName()))));
 						return true;
 						break;
 					}
 					return true;
+					}else{
+						$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["error-nopermission"], array(
+							"USER" => $player))));
+						return true;
+						break;
+					}
 					
 					case "check":
+						if($this->checkValidity($sender->getInventory()->getItemInHand())){
+							$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["note-check-valid"], array(
+								"USER" => $player))));
+						}else{
+							$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["note-check-invalid"], array(
+								"USER" => $player))));
+						}
 					return true;
 					
 					default:
-						$sender->sendMessage(C::RED.C::BOLD."Invalid command");
+						$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["unknown-command"], array(
+							"USER" => $player,
+							"FULLNAME" => $this->getDescription()->getFullName()))));
 					return true;
 					break;
 				}
-				
-			return true;
-			break; */
+				return true;
+				break;
+				}else{
+					$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["error-nopermission"], array(
+						"USER" => $player))));
+				return true;
+				break;
+				}
+			
 			
 			case "note":
 			case "withdraw":
@@ -189,6 +256,58 @@ class Main extends PluginBase implements Listener{
 		}
 	}
 	
+	public function devalidate(item $note, player $p) : bool{
+		if($this->checkValidity($note)){
+			$nbt = $note->getNamedTag();
+			$nbt->setByte("IsValidNote", false, true);
+			$note->setCompoundTag($nbt);
+			$p->getInventory()->setItemInHand($note);
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	public function validate(item $note, player $p) : bool{
+		if($this->checkDevalidated($note)){
+			$nbt = $note->getNamedTag();
+			$nbt->setByte("IsValidNote", true, true);
+			$note->setCompoundTag($nbt);
+			$p->getInventory()->setItemInHand($note);
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	public function checkValidity(item $note) : bool{
+		$nbt = $note->getNamedTag();
+		if($nbt->getByte("IsValidNote", false) == true && in_array($nbt->getInt("NoteVersion", 0), $this->CompalibleVersions) && $nbt->getInt("NoteValue", 0) > 0){
+			if($nbt->hasTag("Econid", StringTag::class)){
+				if($nbt->getString("Econid", NULL) == $this->cfg["economyid"]){
+					return true;
+				}else{
+					return false;
+				}
+			}elseif($this->cfg["econid-compatibility"]){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+	
+	public function checkDevalidated(item $note) : bool{
+		$nbt = $note->getNamedTag();
+		if($nbt->getByte("IsValidNote", false) == false && in_array($nbt->getInt("NoteVersion", 0), $this->CompalibleVersions) && $nbt->getInt("NoteValue", 0) > 0){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
 	/* error codes
 	-1 : oudated note
 	-2 : invalid note
@@ -201,7 +320,8 @@ class Main extends PluginBase implements Listener{
 		$hand = $inv->getItemInHand();
 		$nbt = $hand->getNamedTag();
 		if ($nbt->getByte("IsValidNote", false) == true) {
-			if($nbt->getInt("NoteVersion", 0) == $this->NoteVersion){
+			if(in_array($nbt->getInt("NoteVersion", 0), $this->CompalibleVersions)){
+				
 				
 				#check to see on which block the player claims the note if it's a playerinteractevent
 				if($interact){
@@ -230,11 +350,31 @@ class Main extends PluginBase implements Listener{
 							break;
 						
 						default:
-							return $this->deposit($p);
+							if($nbt->hasTag("Econid", StringTag::class)){
+								if($nbt->getString("Econid", NULL) == $this->cfg["economyid"]){
+									return $this->deposit($p);
+								}else{
+									return -2;
+								}
+							}elseif($this->cfg["econid-compatibility"]){
+								return $this->deposit($p);
+							}else{
+								return -2;
+							}
 							break;
 					}
 				}else{
-					return $this->deposit($p);
+					if($nbt->hasTag("Econid", StringTag::class)){
+						if($nbt->getString("Econid", NULL) == $this->cfg["economyid"]){
+							return $this->deposit($p);
+						}else{
+							return -2;
+						}
+					}elseif($this->cfg["econid-compatibility"]){
+						return $this->deposit($p);
+					}else{
+						return -2;
+					}
 				}
 			}else{
 				return -1;
@@ -274,10 +414,11 @@ class Main extends PluginBase implements Listener{
 					
 		$note->setLore($lorearray);
 		$nbt = $note->getNamedTag();
-		$nbt->setTag(new ByteTag("IsValidNote", true));
-		$nbt->setTag(new IntTag("NoteVersion", $this->NoteVersion));
-		$nbt->setTag(new IntTag("NoteValue", $amount));
-		$nbt->setTag(new StringTag("Creator", $player));
+		$nbt->setByte("IsValidNote", true);
+		$nbt->setInt("NoteVersion", $this->NoteVersion);
+		$nbt->setInt("NoteValue", $amount);
+		$nbt->setString("Creator", $player);
+		$nbt->setString("Econid", $this->cfg["economyid"]);
 		$note->setCompoundTag($nbt);
 		
 		return $note;
