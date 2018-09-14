@@ -28,7 +28,7 @@ Also, enabled by default, the compatibility setting makes sure banknotes from v1
 ## For developers
 Recently, i've added some API related stuff to make life easier should you want to make a plugin that works with banknotes.
 
-Firstly, make sure you added `use AndreasHGK\BankNotes\Main;` to be able to acces BankNotes.
+Firstly, make sure you added `use AndreasHGK\BankNotes\BankNotes;` to be able to acces BankNotes.
 
 Here are some functions you can call:
 ```php
