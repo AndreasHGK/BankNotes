@@ -1,5 +1,5 @@
 name: BankNotes
-main: AndreasHGK\BankNotes\Main
+main: AndreasHGK\BankNotes\BankNotes
 version: 1.2.0
 api: [3.0.0]
 load: POSTWORLD
@@ -25,7 +25,7 @@ commands:
 permissions:
  banknotes:
   default: false
-  description: "bankNotes root permission (useless)"
+  description: "bankNotes root permission"
   children:
    banknotes.get:
     default: true
@@ -36,6 +36,6 @@ permissions:
    banknotes.command:
     default: true
     description: "plugin commands like /banknotes check"
-    banknotes.command.admin:
-     default: false
-     description: "admin commands like /banknotes admin reload,validate,devalidate"
+   banknotes.command.admin:
+    default: false
+    description: "admin commands like /banknotes admin reload,validate,devalidate"
