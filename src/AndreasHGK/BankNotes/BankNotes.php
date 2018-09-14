@@ -98,7 +98,7 @@ class BankNotes extends PluginBase implements Listener{
 	*/
 	public function checkValidity(item $note) : bool{
 		$nbt = $note->getNamedTag();
-		if($nbt->getByte("IsValidNote", false) == true && in_array($nbt->getInt("NoteVersion", 0), $this->getCompalibleVersions()) && $nbt->getInt("NoteValue", 0) > 0){
+		if($nbt->getByte("IsValidNote", false) == true && in_array($nbt->getInt("NoteVersion", 0), $this->getCompatibleVersions()) && $nbt->getInt("NoteValue", 0) > 0){
 			if($nbt->hasTag("Econid", StringTag::class)){
 				if($nbt->getString("Econid", NULL) == $this->cfg["economyid"]){
 					return true;
@@ -122,7 +122,7 @@ class BankNotes extends PluginBase implements Listener{
 	*/
 	public function checkDevalidated(item $note) : bool{
 		$nbt = $note->getNamedTag();
-		if($nbt->getByte("IsValidNote", false) == false && in_array($nbt->getInt("NoteVersion", 0), $this->getCompalibleVersions()) && $nbt->getInt("NoteValue", 0) > 0){
+		if($nbt->getByte("IsValidNote", false) == false && in_array($nbt->getInt("NoteVersion", 0), $this->getCompatibleVersions()) && $nbt->getInt("NoteValue", 0) > 0){
 			return true;
 		}else{
 			return false;
@@ -143,7 +143,7 @@ class BankNotes extends PluginBase implements Listener{
 		$hand = $inv->getItemInHand();
 		$nbt = $hand->getNamedTag();
 		if ($nbt->getByte("IsValidNote", false) == true) {
-			if(in_array($nbt->getInt("NoteVersion", 0), $this->getCompalibleVersions())){
+			if(in_array($nbt->getInt("NoteVersion", 0), $this->getCompatibleVersions())){
 				
 				
 				#check to see on which block the player claims the note if it's a playerinteractevent
@@ -213,8 +213,8 @@ class BankNotes extends PluginBase implements Listener{
 	*
 	* @return item $note
 	*/
-	public function noteItem(int $amount, string $player = "ADMIN") : item{
-		$note = Item::get($this->cfg["note-id"], 0, 1);
+	public function noteItem(int $amount, int $count = 1, string $player = "ADMIN") : item{
+		$note = Item::get($this->cfg["note-id"], 0, $count);
 		$note->setCustomName(C::colorize($this->replaceVars($this->cfg["note-name"], array(
 			"VALUE" => $amount,
 			"USER" => $player))));
@@ -247,6 +247,7 @@ class BankNotes extends PluginBase implements Listener{
 		$this->saveDefaultConfig();
 		$this->cfg = $this->getConfig()->getAll();
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
+		
 	}
 	
 	public function onDisable() : void{
@@ -384,15 +385,24 @@ class BankNotes extends PluginBase implements Listener{
 				if($bal >= $amount) {
 					if($amount > 0){
 						
-					#make and give the custom bank note and reduce playermoney
-					EconomyAPI::getInstance()->reduceMoney($player, $amount);
+						if(!empty($args[1]) && is_int((int)$args[1])){
+							$count = (int)$args[1];
+						}else{
+							$count = 1;
+						}
 					
-					$note = $this->noteItem($amount, $player);
+					$reduce = $count * $amount;
+					#make and give the custom bank note and reduce playermoney
+					EconomyAPI::getInstance()->reduceMoney($player, $reduce);
+					
+					$note = $this->noteItem($amount, (int)$count, $player);
 					
 					$sender->getInventory()->addItem($note);
 					$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["withdraw-sucess"], array(
 						"VALUE" => $amount,
-						"USER" => $player))));
+						"USER" => $player,
+						"COUNT" => $count,
+						"TOTAL_WITHDRAW" => $reduce))));
 					return true;
 					} else {
 						$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["error-value-invalid"], array(
@@ -480,9 +490,11 @@ class BankNotes extends PluginBase implements Listener{
 		$nbt = $hand->getNamedTag();
 		
 		$dep = $nbt->getInt("NoteValue");
-		EconomyAPI::getInstance()->addMoney($name, $dep);
-		$hand->setCount($hand->getCount() - 1);
+		$count = $hand->getCount();
+		$money = $dep * (int)$count;
+		EconomyAPI::getInstance()->addMoney($name, (int)$money);
+		$hand->setCount($hand->getCount() - (int)$count);
 		$inv->setItemInHand($hand);
-		return $dep;
+		return $money;
 	}
 }

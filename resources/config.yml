@@ -24,6 +24,8 @@ note-lore: ["&r&4Right-click &cto deposit this note", "&r&cCreated by: &4{CREATO
 # {USER} - person who executes the command
 # {BAL} - current balance on EconomyAPI 'bank'
 # {FULLNAME} - plugin name + version (eg. 'Banknotes v1.2.0')
+# {COUNT} - the amount of notes created in /withdraw
+# {TOTAL_WITHDRAW} - the amount of money withdrawn in total
 
 # use \n for a new line (no spaces needed)
 
@@ -32,11 +34,11 @@ error-execute-ingame: "&cPlease run this command in-game"
 
 ## Displayed no arguments are given for /note
 #VARS: {USER}
-error-empty-argument: "&e&lUsage: &r&7/note {amount}"
+error-empty-argument: "&e&lUsage: &r&7/withdraw {value} [count]"
 
 ## Displayed when a banknote has been successfully created (eg. /note 10)
-#VARS: {VALUE} {USER}
-withdraw-sucess: "&a&lSuccess: &r&7a ${VALUE} note was created."
+#VARS: {VALUE} {USER} {TOTAL_WITHDRAW} {COUNT}
+withdraw-sucess: "&a&lSuccess: &r&7you have withdrawn ${TOTAL_WITHDRAW}"
 
 ## Displayed when a player tries to create a note with a value lower than or equals to 0 (eg. /note 0)
 #VARS: {VALUE} {USER}
