@@ -72,7 +72,7 @@ class BankNotes extends PluginBase implements Listener{
 			return false;
 		}
 	}
-	
+
 	/**
 	* @param item $note
 	* @param player $player
@@ -249,10 +249,6 @@ class BankNotes extends PluginBase implements Listener{
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 		
 	}
-	
-	public function onDisable() : void{
-        $this->config->save();
-    }
 	
 	public function replaceVars($str, array $vars) : string{
         foreach($vars as $key => $value){
