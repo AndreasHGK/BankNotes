@@ -10,8 +10,7 @@ Turn your EconomyAPI money into items to trade them!
 You can change the lore/name/ID of the banknotes in v1.1.0 and up and you can change all the messages in V1.2.0 and up.
 
 You will need EconomyAPI for this to work!
-
-This is just a simple, but fun plugin.
+This is just a simple plugin.
 
 All notes from v1.0.0 won't be recognized in v1.1.0 or later!
 This plugin is now v2.0.0 and is complete. I've now added everything planned and more and i have no more ideas for the plugin so i can now truely call it complete.
@@ -60,6 +59,8 @@ $bn->checkValidity($note);
 
 /**
 * @param int $value
+* @param int $count = 1
+* @param string $player = "ADMIN"
 *
 * @return item $noteItem
 */
