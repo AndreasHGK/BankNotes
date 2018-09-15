@@ -14,6 +14,8 @@ You will need EconomyAPI for this to work!
 This is just a simple, but fun plugin.
 
 All notes from v1.0.0 won't be recognized in v1.1.0 or later!
+This plugin is now v2.0.0 and is complete. I've now added everything planned and more and i have no more ideas for the plugin so i can now truely call it complete.
+If you do have a good idea feel free to suggest it. If there are any bugs, please report them and i will fix them as soon as possible.
 
 ## Setup
 This plugin doesn't require a setup, as it works when you install it, but there now is a config where you can change some visual stuff if you want to.

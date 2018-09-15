@@ -5,15 +5,8 @@ namespace AndreasHGK\BankNotes;
 use pocketmine\plugin\PluginBase;
 use pocketmine\command\CommandSender;
 use pocketmine\command\Command;
-use pocketmine\utils\Config;
 use pocketmine\item\Item;
-use pocketmine\block\Block;
-use pocketmine\nbt\NBT;
-use pocketmine\nbt\tag\ByteTag;
 use pocketmine\nbt\tag\StringTag;
-use pocketmine\nbt\tag\IntTag;
-use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\inventory\Inventory;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\Listener;
 use pocketmine\Player;
@@ -57,7 +50,7 @@ class BankNotes extends PluginBase implements Listener{
 	
 	/**
 	* @param item $note
-	* @param player $player
+	* @param player $p
 	*
 	* @return bool $success
 	*/
@@ -75,7 +68,7 @@ class BankNotes extends PluginBase implements Listener{
 
 	/**
 	* @param item $note
-	* @param player $player
+	* @param player $p
 	*
 	* @return bool $success
 	*/
@@ -130,15 +123,14 @@ class BankNotes extends PluginBase implements Listener{
 	}
 	
 	/**
-	* @param player $player
-	* @param bool $isInteractEvent
+	* @param player $p
+	* @param bool $interact
 	* @param PlayerInteractEvent $event
 	*
-	* @return bool $value
+	* @return int $value
 	*/
 	public function depositCheck(player $p, bool $interact = false, PlayerInteractEvent $event = NULL) : int{
-		
-		$name = $p->getName();
+
 		$inv = $p->getInventory();
 		$hand = $inv->getItemInHand();
 		$nbt = $hand->getNamedTag();
@@ -209,11 +201,12 @@ class BankNotes extends PluginBase implements Listener{
 	
 	/**
 	* @param int $value
-	* @param string $creator
-	*
+    * @param int $count
+	* @param string $player
+    *
 	* @return item $note
 	*/
-	public function noteItem(int $amount, int $count = 1, string $player = "ADMIN") : item{
+	public function noteItem(int $value, int $count = 1, string $player = "ADMIN") : item{
 		$note = Item::get($this->cfg["note-id"], 0, $count);
 		$note->setCustomName(C::colorize($this->replaceVars($this->cfg["note-name"], array(
 			"VALUE" => $amount,
@@ -222,7 +215,7 @@ class BankNotes extends PluginBase implements Listener{
 		$loreint = 0;
 		$lorearray	;
 		foreach($this->cfg["note-lore"] as $line){
-			$lorearray[$loreint] = C::colorize($this->replaceVars($line, array("VALUE" => $amount, "CREATOR" => $player)));
+			$lorearray[$loreint] = C::colorize($this->replaceVars($line, array("VALUE" => $value, "CREATOR" => $player)));
 			$loreint++;
 		}
 					
@@ -230,7 +223,7 @@ class BankNotes extends PluginBase implements Listener{
 		$nbt = $note->getNamedTag();
 		$nbt->setByte("IsValidNote", true);
 		$nbt->setInt("NoteVersion", $this->NoteVersion);
-		$nbt->setInt("NoteValue", $amount);
+		$nbt->setInt("NoteValue", $value);
 		$nbt->setString("Creator", $player);
 		$nbt->setString("Econid", $this->cfg["economyid"]);
 		$note->setCompoundTag($nbt);
@@ -326,7 +319,6 @@ class BankNotes extends PluginBase implements Listener{
 						return true;
 						break;
 					}
-					return true;
 					}else{
 						$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["error-nopermission"], array(
 							"USER" => $player))));
@@ -351,7 +343,6 @@ class BankNotes extends PluginBase implements Listener{
 					return true;
 					break;
 				}
-				return true;
 				break;
 				}else{
 					$sender->sendMessage(C::colorize($this->replaceVars($this->cfg["error-nopermission"], array(
@@ -449,7 +440,7 @@ class BankNotes extends PluginBase implements Listener{
 				return true;
 				break;
 				
-			}return true;
+			}
 		
 		} return false;
 	}
@@ -463,7 +454,8 @@ class BankNotes extends PluginBase implements Listener{
 			case -1:
 			$p->sendMessage(C::colorize($this->replaceVars($this->cfg["error-note-incompatible"], array(
 				"USER" => $name))));
-			
+			break;
+
 			case -2:
 			break;
 			
