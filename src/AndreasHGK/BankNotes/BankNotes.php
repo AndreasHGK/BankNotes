@@ -209,7 +209,7 @@ class BankNotes extends PluginBase implements Listener{
 	public function noteItem(int $value, int $count = 1, string $player = "ADMIN") : item{
 		$note = Item::get($this->cfg["note-id"], 0, $count);
 		$note->setCustomName(C::colorize($this->replaceVars($this->cfg["note-name"], array(
-			"VALUE" => $amount,
+			"VALUE" => $value,
 			"USER" => $player))));
 					
 		$loreint = 0;
@@ -471,7 +471,7 @@ class BankNotes extends PluginBase implements Listener{
 	}
 	
 	public function deposit(player $p) : int{
-		
+
 		$name = $p->getName();
 		$inv = $p->getInventory();
 		$hand = $inv->getItemInHand();
