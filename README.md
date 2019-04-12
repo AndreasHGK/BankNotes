@@ -11,6 +11,8 @@ You can change the lore/name/ID of the banknotes in v1.1.0 and up and you can ch
 
 You will need EconomyAPI for this to work!
 
+This is just a simple, but fun plugin.
+
 All notes from v1.0.0 won't be recognized in v1.1.0 or later!
 This plugin is now v2.0.0 and is complete. I've now added everything planned and more and i have no more ideas for the plugin so i can now truely call it complete.
 If you do have a good idea feel free to suggest it. If there are any bugs, please report them and i will fix them as soon as possible.
@@ -20,7 +22,7 @@ This plugin doesn't require a setup, as it works when you install it, but there 
 
 The first section contains settings for the notes. You can change the ID, custom name and custom lore for the note item.
 
-The second section allows you to change most of the messages of the plugin. This is usefull if you want to translate the plugin or even just change the looks of the messages.
+The second section allows you to change most of the messages of the plugin. This is usefull if you want to translate the plugin ur even just change the looks of the messages.
 
 The third section contains advanced settings, currently allowing you to reset economy by changing the economyid.
 Also, enabled by default, the compatibility setting makes sure banknotes from v1.1.0 still work.
@@ -58,8 +60,6 @@ $bn->checkValidity($note);
 
 /**
 * @param int $value
-* @param int $count = 1
-* @param string $player = "ADMIN"
 *
 * @return item $noteItem
 */

@@ -18,13 +18,15 @@ class BankNotes extends PluginBase implements Listener{
 	public $NoteVersion = 2.1;
 	public $cfg;
 	public $CompalibleVersions = [2.0, 2.1];
+
+	public static $instance = null;
 	
 	
 	/**
 	* @return BankNotes $BankNotes
 	*/
 	public static function getInstance(){
-		return $this;
+		return self::$instance;
 	}
 	
 	/**
@@ -213,7 +215,7 @@ class BankNotes extends PluginBase implements Listener{
 			"USER" => $player))));
 					
 		$loreint = 0;
-		$lorearray	;
+		$lorearray = [];
 		foreach($this->cfg["note-lore"] as $line){
 			$lorearray[$loreint] = C::colorize($this->replaceVars($line, array("VALUE" => $value, "CREATOR" => $player)));
 			$loreint++;
@@ -236,6 +238,7 @@ class BankNotes extends PluginBase implements Listener{
 	
 
 	public function onEnable() : void{
+	    self::$instance = $this;
 		@mkdir($this->getDataFolder());
 		$this->saveDefaultConfig();
 		$this->cfg = $this->getConfig()->getAll();
