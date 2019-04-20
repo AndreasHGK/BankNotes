@@ -371,19 +371,19 @@ class BankNotes extends PluginBase implements Listener{
 				}
 				if(is_int($amount)){
 					
-				$bal = EconomyAPI::getInstance()->myMoney($player);	
-				if($bal >= $amount) {
+				$bal = EconomyAPI::getInstance()->myMoney($player);
+                    if(!empty($args[1]) && is_int((int)$args[1])){
+                        $count = (int)$args[1];
+                    }else{
+                        $count = 1;
+                    }
+				$reduce = $count * $amount;
+				if($bal >= $reduce) {
 					if($amount > 0){
-						
-						if(!empty($args[1]) && is_int((int)$args[1])){
-							$count = (int)$args[1];
-						}else{
-							$count = 1;
-						}
-					
-					$reduce = $count * $amount;
+
+
 					#make and give the custom bank note and reduce playermoney
-					EconomyAPI::getInstance()->reduceMoney($player, $reduce);
+					EconomyAPI::getInstance()->reduceMoney($player, $reduce, true);
 					
 					$note = $this->noteItem($amount, (int)$count, $player);
 					
