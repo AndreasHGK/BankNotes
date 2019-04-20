@@ -1,7 +1,7 @@
 name: BankNotes
 main: AndreasHGK\BankNotes\BankNotes
-version: 2.0.2
-api: [3.0.0]
+version: 2.0.3
+api: [3.7.0]
 load: POSTWORLD
 author: AndreasHGK
 description: A plugin that makes money into an item to trade with!
